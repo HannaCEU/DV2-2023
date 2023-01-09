@@ -192,6 +192,47 @@ get_stamenmap(bbox = bbox, zoom = 4) %>% ggmap() +
   theme_void()+
   coord_fixed(1.3)
 
+anscombe
+
+plot(anscombe[, c(1, 5)])
+plot(anscombe[, c(2, 6)])
+plot(anscombe[, c(3, 7)])
+plot(anscombe[, c(4, 8)])
+
+cor(anscombe[, c(1,5)])
+cor(anscombe[, c(2,6)])
+
+mean(anscombe[, c(1)])
+mean(anscombe[, c(2)])
+mean(anscombe[, c(3)])
+mean(anscombe[, c(4)])
+
+#hidden forloop. Return a list for us
+#anonymous version function
+lapply(1:4, function(i) mean(anscombe[, c(i)]))
+
+#alternative function 
+computemean <- function (i){
+  mean(anscombe[, c(i)])
+}
+
+lapply(1:4, computemean)
+
+anscombe_df <- rbindlist(lapply(1:4, function(i) {
+  data.frame(
+    x = anscombe[, c(i)],
+    y = anscombe[, c(i+4)],
+    dataset = i)
+}
+))
+
+## data.frame with 4x11 rows, 3 columns: x, y, dataset id
+ggplot(anscombe_df, aes(x, y)) + geom_point() + facet_wrap(~dataset)
+
+
+
+
+
 
 
 
