@@ -96,6 +96,109 @@ ggplot(berkley, aes(Gender, Freq, fill = Admit)) +
   scale_fill_manual(values = c ("Admitted" = 'darkgreen',
                               "Rejected" = 'darkred'))  
 
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species))  +
+  scale_fill_manual(values = c("setosa" = "green",
+                               "versicolor" = "red",
+                               "virginica" = 'blue')) +
+  geom_point(aes(color = Species)) +
+  geom_smooth(method = 'lm', color = 'black') +
+  geom_smooth(aes(color = Species), method = 'lm')+
+  theme_minimal()
+
+library(data.table)
+
+bookings <- fread('http://bit.ly/CEU-R-hotels-2018-prices')
+
+bookings[1:5]
+
+bookings[price < 100 & holiday == 1]
+
+bookings [price < 100] [holiday == 1] [1:5]
+
+bookings[price < 100 & holiday == 1, .N]
+
+bookings[price < 100 & holiday == 1, mean(price)]
+
+bookings[price < 100 & holiday == 1, hist(price)]
+
+bookings[price < 100 & holiday == 1, summary(price)]
+
+#compute average price on bookings and on weekdays
+
+bookings[weekend == 1, mean(price)]
+
+# calc average price of bookings on weekdays
+bookings[weekend == 0, mean(price)]
+
+bookings[ ,mean(price), by = weekend]
+
+## bookings$price_per_night <- bookings$price/bookings$nnights
+bookings[, price_per_night := price / nnights]
+
+
+## list can be replaced with a .
+bookings[, .(price = mean(price), min = min(price), max = max(price)), by = .(weekend, nnights, holiday)]
+
+features <- fread('http://bit.ly/CEU-R-hotels-2018-features')
+
+## inner join, observations are missing
+merge(bookings, features, all.x = TRUE)[is.na(city)]
+
+# to do country level aggregated data on average rating of hotels
+
+countries <- features[, .(rating = mean(rating, na.rm = TRUE)), by = country][!is.na(country)]
+
+setorder(countries, rating)
+countries
+
+
+countries[order(country)]
+countries[order(rating)]
+
+library(ggmap)
+
+
+#nominatim 
+
+library(tidygeocoder)
+#can provide dataframe instead of character vector
+
+geocode(countries, 'country')
+
+countries <- data.table(tidygeocoder::geocode(countries, 'country'))
+
+library(maps)
+map('world', fill = TRUE, col = 1:10)
+
+#create world variable 
+world <- map_data ('world')
+str(world)
+
+map <- ggplot()+
+  geom_map(data=world, map = world, aes(long, lat, map_id = region)) +
+  theme_void()+
+  coord_fixed(1.3)
+
+
+map + geom_point(data = countries, aes(long, lat, size = rating), color = 'orange')
+
+?get_stamenmap
+
+
+bbox = c(left = min(countries$long), bottom = min(countries$lat),
+         right = max(countries$long), top = max(countries$lat))
+get_stamenmap(bbox = bbox, zoom = 4) %>% ggmap() +
+  geom_point(aes(x = long, y = lat), data = countries, colour = "red", size = 2)+
+  theme_void()+
+  coord_fixed(1.3)
+
+
+
+
+
+
+
+
 
 
 
