@@ -229,8 +229,21 @@ anscombe_df <- rbindlist(lapply(1:4, function(i) {
 ## data.frame with 4x11 rows, 3 columns: x, y, dataset id
 ggplot(anscombe_df, aes(x, y)) + geom_point() + facet_wrap(~dataset)
 
+df <-datasauRus::datasaurus_dozen_wide
 
+dino_df <- rbindlist(lapply(seq(1, 26, by = 2), function(i) {
+  data.frame(
+    x = df[, c(i), drop = TRUE], 
+    y = df[, c(i+1), drop = TRUE],
+    # sub('_x$', '', names(df)[i])
+    dataset = substr(names(df)[i], 1, nchar(names(df)[i])-2))
+}
+))
 
+ggplot(dino_df, aes(x, y)) + geom_point() + 
+  geom_smooth(method = 'lm', se = FALSE) + 
+  facet_wrap(~dataset) +
+  theme_bw()
 
 
 
